@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="An interactive case study of seven places where an AI critic missed or only partly covered later human feedback."
+    >
+    <meta name="theme-color" content="#16362f">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="WildCritic">
+    <meta property="og:title" content="When AI critique misses the user's point">
+    <meta
+      property="og:description"
+      content="An interactive case study comparing AI critique with later human feedback."
+    >
+    <meta property="og:url" content="https://wild-critic.github.io/">
+    <link rel="canonical" href="https://wild-critic.github.io/">
+    <title>WildCritic | When AI critique misses the user's point</title>
+    <link rel="stylesheet" href="assets/css/site.css">
+  </head>
+  <body>
+    <header class="page-shell site-header">
+      <div class="brand">WildCritic case study</div>
+    </header>
+
+    <main>
+      <section class="page-shell hero" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">
+            <span class="headline-line">An LLM critic</span>
+            <span class="headline-line">struggles to validate</span>
+            <span class="headline-line">in-the-wild agent</span>
+            <span class="headline-line">execution.</span>
+          </h1>
+          <p class="hero-lead">
+            The LLM critic did not fully capture the human critique in 7 of 13 cases.
+          </p>
+        </div>
+
+        <aside class="score-card" aria-label="Case study result summary">
+          <div class="score-main">
+            <span class="score-number-group">
+              <span class="score-number">7</span>
+              <span class="score-percent">54%</span>
+            </span>
+            <span class="score-label">of 13 cases were<br>not fully covered</span>
+          </div>
+          <div
+            class="coverage-bar"
+            role="img"
+            aria-label="Four missed, three partially covered, and six fully covered cases"
+          >
+            <span></span><span></span><span></span>
+          </div>
+          <p class="score-legend">
+            <span
+              tabindex="0"
+              data-tooltip="The AI critique did not identify the core issue in the human critique."
+            >
+              <strong>4</strong>missed
+            </span>
+            <span
+              tabindex="0"
+              data-tooltip="The AI critique identified some, but not all, of the issues in the human critique."
+            >
+              <strong>3</strong>partial
+            </span>
+            <span
+              tabindex="0"
+              data-tooltip="The AI critique identified the core issue in the human critique."
+            >
+              <strong>6</strong>full
+            </span>
+          </p>
+        </aside>
+      </section>
+
+      <section class="page-shell primer-section" aria-labelledby="primer-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">The setup</p>
+            <h2 id="primer-title">What exactly are we comparing?</h2>
+          </div>
+        </div>
+
+        <div class="review-flow" aria-label="Evaluation sequence">
+          <article class="flow-step">
+            <h3>The user asks</h3>
+            <p>A person gives an agent a real task with constraints and an intended outcome.</p>
+          </article>
+          <article class="flow-step">
+            <h3>The agent responds</h3>
+            <p>The agent answers, reasons, and may use tools. This is the work under review.</p>
+          </article>
+          <article class="flow-step">
+            <h3>The AI critic reviews</h3>
+            <p>
+              It sees everything up to the agent response.
+              <span class="hidden-note">The human feedback stays hidden.</span>
+            </p>
+          </article>
+          <article class="flow-step">
+            <h3>We evaluate coverage</h3>
+            <p>Did the AI critic cover the human critique?</p>
+          </article>
+        </div>
+
+        <section class="admission-criteria" aria-labelledby="admission-title">
+          <div>
+            <p class="eyebrow">Case admission</p>
+            <h3 id="admission-title">Every example meets two requirements.</h3>
+          </div>
+          <ol class="admission-list">
+            <li>
+              <span class="criterion-number">01</span>
+              <strong>The human critique is valid</strong>
+              <p>
+                It identifies a real defect in the agent execution, supported by the record and
+                accepted in the later exchange.
+              </p>
+            </li>
+            <li>
+              <span class="criterion-number">02</span>
+              <strong>The human identifies a recoverable defect</strong>
+              <p>
+                A reviewer can determine the defect directly or reasonably infer it from context
+                available before the human feedback.
+              </p>
+            </li>
+          </ol>
+        </section>
+      </section>
+
+      <section class="explorer-section" id="case-explorer" aria-labelledby="explorer-title">
+        <div class="page-shell">
+          <div class="section-heading example-heading">
+            <h2 id="explorer-title">Example</h2>
+          </div>
+
+          <div class="filter-row" aria-label="Filter cases by outcome">
+            <button class="filter-button" type="button" data-filter="all" aria-pressed="true">
+              All gaps (7)
+            </button>
+            <button class="filter-button" type="button" data-filter="missed" aria-pressed="false">
+              Missed (4)
+            </button>
+            <button class="filter-button" type="button" data-filter="partial" aria-pressed="false">
+              Partial (3)
+            </button>
+          </div>
+
+          <div class="explorer-layout">
+            <nav class="case-list" id="case-list" aria-label="Coverage gap cases"></nav>
+            <p class="visually-hidden" id="case-status" aria-live="polite" aria-atomic="true"></p>
+
+            <article class="case-detail" id="case-detail">
+              <div class="detail-topline">
+                <span class="outcome-badge" id="outcome-badge"></span>
+                <span class="pattern-badge" id="pattern-badge"></span>
+              </div>
+              <h3 id="case-title" tabindex="-1"></h3>
+              <p class="case-specific-title" id="case-specific-title"></p>
+
+              <div class="example-context">
+                <section class="context-panel task-panel">
+                  <span class="content-label">Task</span>
+                  <p id="case-task"></p>
+                </section>
+                <section class="context-panel execution-panel">
+                  <span class="content-label">Agent execution</span>
+                  <ol id="execution-list"></ol>
+                </section>
+              </div>
+
+              <section class="studied-exchange" aria-labelledby="exchange-title">
+                <div class="content-heading">
+                  <div>
+                    <span class="content-label">Studied exchange</span>
+                    <h4 id="exchange-title">The request and the response under review</h4>
+                  </div>
+                  <button class="conversation-trigger" id="open-conversation" type="button">
+                    <span>
+                      <strong>Open condensed conversation</strong>
+                      <small>Three turns, with tool calls omitted</small>
+                    </span>
+                    <span class="conversation-trigger-arrow" aria-hidden="true">&#8599;</span>
+                  </button>
+                </div>
+
+                <div class="exchange-flow">
+                  <article class="exchange-card user-request-card">
+                    <div class="exchange-card-heading">
+                      <span class="exchange-step">01</span>
+                      <span class="content-label">User request</span>
+                    </div>
+                    <div class="exchange-copy" id="user-request"></div>
+                  </article>
+                  <span class="exchange-arrow" aria-hidden="true">&#8594;</span>
+                  <article class="exchange-card agent-response-card">
+                    <div class="exchange-card-heading">
+                      <span class="exchange-step">02</span>
+                      <span class="content-label">Agent execution after the user request</span>
+                    </div>
+                    <div class="exchange-copy" id="agent-response"></div>
+                  </article>
+                </div>
+              </section>
+
+              <section class="critique-comparison" aria-labelledby="comparison-title">
+                <div class="content-heading comparison-heading">
+                  <div>
+                    <span class="content-label">Critique comparison</span>
+                    <h4 id="comparison-title">AI critique vs. human feedback</h4>
+                  </div>
+                </div>
+
+                <div class="evidence-grid">
+                  <section class="evidence-card critic">
+                    <div class="evidence-card-heading">
+                      <span class="critic-marker">AI</span>
+                      <span class="evidence-label">AI critique, relevant excerpt</span>
+                    </div>
+                    <blockquote id="critic-quote"></blockquote>
+                  </section>
+                  <section class="evidence-card human">
+                    <div class="evidence-card-heading">
+                      <span class="human-marker">H</span>
+                      <span class="evidence-label" id="human-label">Human feedback</span>
+                    </div>
+                    <blockquote id="human-quote"></blockquote>
+                  </section>
+                </div>
+
+                <div class="issue-comparison">
+                  <span class="content-label">Issue-level coverage</span>
+                  <ul class="issue-strip" id="issue-strip"></ul>
+                </div>
+              </section>
+
+              <section class="verdict-box" id="verdict-box" aria-labelledby="verdict-heading">
+                <div class="analysis-heading">
+                  <span class="verdict-symbol" id="verdict-symbol"></span>
+                  <div>
+                    <span class="content-label">Analysis</span>
+                    <h4 id="verdict-heading">Why the AI critique failed</h4>
+                  </div>
+                </div>
+                <div class="analysis-grid">
+                  <div>
+                    <strong>Coverage finding</strong>
+                    <p id="verdict-text"></p>
+                  </div>
+                  <div>
+                    <strong>Failure mechanism</strong>
+                    <p id="case-takeaway"></p>
+                  </div>
+                </div>
+              </section>
+
+              <div class="case-navigation">
+                <button class="navigation-button" id="previous-case" type="button">
+                  Previous case
+                </button>
+                <span class="case-progress" id="case-progress"></span>
+                <button class="navigation-button" id="next-case" type="button">Next case</button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <dialog
+      class="conversation-dialog"
+      id="conversation-dialog"
+      aria-labelledby="conversation-title"
+      aria-describedby="conversation-note"
+    >
+      <div class="conversation-shell">
+        <header class="conversation-header">
+          <div class="conversation-header-copy">
+            <p class="conversation-kicker">Condensed original conversation</p>
+            <h2 id="conversation-title"></h2>
+            <p class="conversation-case-title" id="conversation-case-title"></p>
+            <p class="conversation-note" id="conversation-note"></p>
+          </div>
+          <button class="conversation-close" id="close-conversation" type="button" aria-label="Close conversation">
+            &times;
+          </button>
+        </header>
+
+        <div class="transcript-toolbar">
+          <nav class="transcript-navigation" id="transcript-navigation" aria-label="Conversation turns"></nav>
+          <div class="transcript-legend" aria-label="Highlight legend">
+            <span class="legend-entry">
+              <span class="legend-swatch requirement"></span>
+              <span class="legend-label-full">User requirement</span>
+              <span class="legend-label-short">Requirement</span>
+            </span>
+            <span class="legend-entry">
+              <span class="legend-swatch divergence"></span>
+              <span class="legend-label-full">Agent divergence</span>
+              <span class="legend-label-short">Divergence</span>
+            </span>
+            <span class="legend-entry">
+              <span class="legend-swatch correction"></span>
+              <span class="legend-label-full">Human correction</span>
+              <span class="legend-label-short">Correction</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="conversation-messages" id="conversation-messages"></div>
+
+        <footer class="conversation-footer">
+          <p class="message-progress" id="message-progress" aria-live="polite" aria-atomic="true"></p>
+          <div class="message-navigation-buttons">
+            <button class="navigation-button" id="previous-message" type="button">Previous</button>
+            <button class="navigation-button" id="next-message" type="button">Next</button>
+          </div>
+        </footer>
+      </div>
+    </dialog>
+
+    <footer class="page-shell site-footer">
+      <span>WildCritic direct prompting case study, 2026</span>
+    </footer>
+
+    <script type="module" src="assets/js/app.js"></script>
+  </body>
+</html>
